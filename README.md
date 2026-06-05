@@ -3,6 +3,7 @@
 A responsive, high-performance React frontend designed to simulate real-time, asynchronous AI conversation handling. 
 
 Currently, this repository houses the interactive user interface (UI) and state management logic, utilizing mocked data delays to demonstrate frontend proficiency.
+![DevAssist Interface Preview](./DemoUI.png)
 ## 🚀 Features
 
 * **Real-Time State Management:** Efficiently handles complex React state to append user prompts and AI responses to the chat history dynamically.
