@@ -1,15 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 * {
+    box-sizing: border-box;
     color:#ececf1;
     font-family:'Inter', sans-serif;
+}
+
+html, body, #root {
+    min-height: 100%;
 }
 
 body {
     margin: 0;
     padding: 0;
+    background:
+        radial-gradient(circle at top, rgba(124, 58, 237, 0.08), transparent 20%),
+        linear-gradient(135deg, #111827 0%, #171717 45%, #0f172a 100%);
 }
 
 .app {
-    background-color:#343541;
+    min-height: 100vh;
     display: flex;
+    overflow: hidden;
 }

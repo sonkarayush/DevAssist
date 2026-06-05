@@ -1,115 +1,106 @@
 import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
 import { MyContext } from "./MyContext.jsx";
-import { useContext, useState, useEffect } from "react";
-import {ScaleLoader} from "react-spinners";
+import { useContext, useEffect, useRef, useState } from "react";
+import { ScaleLoader } from "react-spinners";
 
 function ChatWindow() {
-    const {prompt, setPrompt, reply, setReply, currThreadId, setPrevChats, setNewChat} = useContext(MyContext);
+    const { prompt, setPrompt, currThreadId, setPrevChats, setNewChat, setIsSidebarOpen } = useContext(MyContext);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const textareaRef = useRef(null);
+
+    const mockAIReply = "This is a mock AI response! I bypassed the backend to demonstrate my frontend UI skills.";
+
+    const adjustTextareaHeight = () => {
+        const textarea = textareaRef.current;
+
+        if (!textarea) return;
+
+        textarea.style.height = "auto";
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 140)}px`;
+    };
+
+    useEffect(() => {
+        adjustTextareaHeight();
+    }, [prompt]);
 
     const getReply = async () => {
+        const message = prompt.trim();
+
+        if (!message) return;
+
         setLoading(true);
         setNewChat(false);
 
-        console.log("message ", prompt, " threadId ", currThreadId);
-        // const options = {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json"
-        //     },
-        //     body: JSON.stringify({
-        //         message: prompt,
-        //         threadId: currThreadId
-        //     })
-        // };
-
-        // try {
-        //     const response = await fetch("http://localhost:8080/api/chat", options);
-        //     const res = await response.json();
-        //     console.log(res);
-        //     setReply(res.reply);
-        // } catch(err) {
-        //     console.log(err);
-        // }
-        // setLoading(false);
+        console.log("message ", message, " threadId ", currThreadId);
 
         setTimeout(() => {
-      setPrevChats(prev => [
-        ...prev,
-        { role: "user", content: prompt },
-        { role: "assistant", content: "This is a mock AI response! I bypassed the backend to demonstrate my frontend UI skills for my portfolio." }
-      ]);
-    setPrompt("");
-      setLoading(false);
-    }, 1500);
-
-
-    }
-
-
-
-    //Append new chat to prevChats
-    useEffect(() => {
-        if(prompt && reply) {
-            setPrevChats(prevChats => (
-                [...prevChats, {
-                    role: "user",
-                    content: prompt
-                },{
-                    role: "assistant",
-                    content: reply
-                }]
-            ));
-        }
-
-        setPrompt("");
-    }, [reply]);
-
+            setPrevChats((prev) => [
+                ...prev,
+                { role: "user", content: message },
+                { role: "assistant", content: mockAIReply }
+            ]);
+            setPrompt("");
+            setLoading(false);
+        }, 900);
+    };
 
     const handleProfileClick = () => {
         setIsOpen(!isOpen);
-    }
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            getReply();
+        }
+    };
 
     return (
         <div className="chatWindow">
             <div className="navbar">
-                <span>QuantumChat <i className="fa-solid fa-chevron-down"></i></span>
+                <button className="mobileMenuBtn" type="button" onClick={() => setIsSidebarOpen((prev) => !prev)} aria-label="Toggle sidebar">
+                    <i className="fa-solid fa-bars"></i>
+                </button>
+                <span className="brandLabel">DevAssist <i className="fa-solid fa-chevron-down"></i></span>
                 <div className="userIconDiv" onClick={handleProfileClick}>
                     <span className="userIcon"><i className="fa-solid fa-user"></i></span>
                 </div>
             </div>
-            {
-                isOpen && 
+            {isOpen && (
                 <div className="dropDown">
-                    <div className="dropDownItem"><i class="fa-solid fa-gear"></i> Settings</div>
-                    <div className="dropDownItem"><i class="fa-solid fa-cloud-arrow-up"></i> Upgrade plan</div>
-                    <div className="dropDownItem"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</div>
+                    <div className="dropDownItem"><i className="fa-solid fa-gear"></i> Settings</div>
+                    <div className="dropDownItem"><i className="fa-solid fa-cloud-arrow-up"></i> Upgrade plan</div>
+                    <div className="dropDownItem"><i className="fa-solid fa-arrow-right-from-bracket"></i> Log out</div>
                 </div>
-            }
-            <Chat></Chat>
+            )}
+            <Chat />
 
-            <ScaleLoader color="#fff" loading={loading}>
-            </ScaleLoader>
-            
+            <ScaleLoader color="#8b5cf6" loading={loading} />
+
             <div className="chatInput">
                 <div className="inputBox">
-                    <input placeholder="Ask anything"
+                    <textarea
+                        ref={textareaRef}
+                        className="promptInput"
+                        placeholder="Ask anything"
                         value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter'? getReply() : ''}
-                    >
-                           
-                    </input>
-                    <div id="submit" onClick={getReply}><i className="fa-solid fa-paper-plane"></i></div>
+                        onChange={(event) => {
+                            setPrompt(event.target.value);
+                            adjustTextareaHeight();
+                        }}
+                        onKeyDown={handleKeyDown}
+                        rows={1}
+                    />
+                    <button id="submit" type="button" onClick={getReply} aria-label="Send prompt">
+                        <i className="fa-solid fa-paper-plane"></i>
+                    </button>
                 </div>
-                <p className="info">
-                    QuantumChat can make mistakes. Check important info. See Cookie Preferences.
-                </p>
+                <p className="info">DevAssist can make mistakes. Check important info. See Cookie Preferences.</p>
             </div>
         </div>
-    )
+    );
 }
 
 export default ChatWindow;
